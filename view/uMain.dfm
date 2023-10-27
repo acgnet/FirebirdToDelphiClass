@@ -73,9 +73,13 @@ object frmMain: TfrmMain
         Align = alClient
         Alignment = taCenter
         Caption = 'lblMensagem'
-        ExplicitLeft = 72
-        ExplicitTop = 304
-        ExplicitWidth = 72
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ExplicitWidth = 74
         ExplicitHeight = 15
       end
       object btnSair: TButton
