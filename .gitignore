@@ -1,0 +1,4 @@
+/Win32/Debug/*.dcu
+/controller/__history
+/model/__history
+/view/__history
