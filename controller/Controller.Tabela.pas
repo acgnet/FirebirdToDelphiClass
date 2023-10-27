@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, System.StrUtils;
 
 type
   TControllerTabela = class(TDataModule)
@@ -19,6 +19,7 @@ type
     procedure PreencheRodape(var AMemo: TMemo);
     procedure PreencheAreaPublica(var AMemo: TMemo);
     function GetTipo(AType: TFieldType): string;
+    function FormatCamelCase(input: string): string;
     { Private declarations }
   public
     { Public declarations }
@@ -31,7 +32,7 @@ var
 implementation
 
 uses
-  Controller.Base;
+  Controller.Base, System.Types;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
@@ -104,12 +105,15 @@ begin
 end;
 
 procedure TControllerTabela.PreencheCabecalho(Var AMemo: TMemo; ATabela: String);
+var
+  ATabelaCamelCase: string;
 begin
-  AMemo.Lines.Add(Format('unit %s;', ['u'+ATabela]));
+  ATabelaCamelCase := FormatCamelCase(ATabela);
+  AMemo.Lines.Add(Format('unit %s;', ['Model.'+ ATabelaCamelCase]));
   AddLinha(AMemo);
   AMemo.Lines.Add('interface');
   AddLinha(AMemo);
-  AMemo.Lines.Add(Format('type %s = class',['T'+ATabela]));
+  AMemo.Lines.Add(Format('type %s = class',['T'+ATabelaCamelCase]));
   AddLinha(AMemo);
   AMemo.Lines.Add('private');
 end;
@@ -154,6 +158,31 @@ begin
 
     else
       Result := 'string';
+  end;
+end;
+
+
+function TControllerTabela.FormatCamelCase(input: string): string;
+var
+  words: TStringDynArray;
+  word: string;
+  i: Integer;
+begin
+  words := SplitString(input, ' ');
+
+  Result := '';
+
+  for i := 0 to High(words) do
+  begin
+    word := words[i];
+
+    if word <> '' then
+    begin
+      // Converta a primeira letra em maiúscula e o restante em minúsculas
+      word := UpperCase(word[1]) + LowerCase(Copy(word, 2, Length(word) - 1));
+      // Adicione a palavra formatada à string de saída
+      Result := Result + word;
+    end;
   end;
 end;
 
