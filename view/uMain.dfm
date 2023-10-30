@@ -123,19 +123,58 @@ object frmMain: TfrmMain
         OnClick = btnClipboardClick
       end
     end
-    object mmoClasse: TMemo
+    object Panel1: TPanel
       Left = 0
       Top = 0
       Width = 552
       Height = 659
       Align = alClient
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Consolas'
-      Font.Style = []
-      ParentFont = False
+      BevelOuter = bvNone
+      Caption = 'Panel1'
       TabOrder = 1
+      ExplicitLeft = 136
+      ExplicitTop = 216
+      ExplicitWidth = 185
+      ExplicitHeight = 41
+      object spl1: TSplitter
+        Left = 0
+        Top = 295
+        Width = 552
+        Height = 6
+        Cursor = crVSplit
+        Align = alBottom
+        ExplicitTop = 296
+      end
+      object mmoClasse: TMemo
+        Left = 0
+        Top = 0
+        Width = 552
+        Height = 295
+        Align = alClient
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Consolas'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        ExplicitHeight = 225
+      end
+      object mmoController: TMemo
+        Left = 0
+        Top = 301
+        Width = 552
+        Height = 358
+        Align = alBottom
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Consolas'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        ExplicitLeft = -5
+      end
     end
   end
   object dtsTabela: TDataSource

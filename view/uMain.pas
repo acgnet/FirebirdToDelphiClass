@@ -17,9 +17,12 @@ type
     btnConfigurar: TButton;
     dtsTabela: TDataSource;
     dbgTabela: TDBGrid;
-    mmoClasse: TMemo;
     btnClipboard: TButton;
     lblMensagem: TLabel;
+    Panel1: TPanel;
+    mmoClasse: TMemo;
+    mmoController: TMemo;
+    spl1: TSplitter;
     procedure btnConfigurarClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnGerarClasseClick(Sender: TObject);
@@ -63,7 +66,10 @@ end;
 procedure TfrmMain.btnGerarClasseClick(Sender: TObject);
 begin
    if Trim(dtsTabela.DataSet.FieldByName('Tabela').AsString) <> EmptyStr then
+   begin
     ControllerTabela.GeraClasse(mmoClasse, dtsTabela.DataSet.FieldByName('Tabela').AsString);
+    ControllerTabela.GeraController(mmoController, dtsTabela.DataSet.FieldByName('Tabela').AsString);
+   end;
 end;
 
 procedure TfrmMain.btnSairClick(Sender: TObject);

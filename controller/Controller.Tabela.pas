@@ -14,16 +14,20 @@ type
     fdqTabelaTABELA: TStringField;
   private
     function PegaCampoChave(ATabela: string): string;
-    procedure PreencheCabecalho(var AMemo: TMemo; ATabela: string);
+    procedure PreencheCabecalhoClasse(var AMemo: TMemo; ATabela: string);
     procedure AddLinha(var AMemo: TMemo);
-    procedure PreencheRodape(var AMemo: TMemo);
+    procedure PreencheRodapeClasse(var AMemo: TMemo);
     procedure PreencheAreaPublica(var AMemo: TMemo);
     function GetTipo(AType: TFieldType): string;
     function FormatCamelCase(input: string): string;
+
+    procedure PreencheCabecalhoController(var AMemo: TMemo; ATabela: String);
+    procedure PreencheRodapeController(var AMemo: TMemo);
     { Private declarations }
   public
     { Public declarations }
     procedure GeraClasse(var AMemo: TMemo; ATabela: string);
+    procedure GeraController(var AMemo: TMemo; ATabela: string);
   end;
 
 var
@@ -48,7 +52,7 @@ var
   Tipo: string;
 begin
   AMemo.Lines.Clear;
-  PreencheCabecalho(AMemo, ATabela);
+  PreencheCabecalhoClasse(AMemo, ATabela);
 
   qry := TFDQuery.Create(nil);
 
@@ -76,7 +80,7 @@ begin
     end;
 
   finally
-    PreencheRodape(AMemo);
+    PreencheRodapeClasse(AMemo);
     qry.Close;
     FreeAndNil(qry);
   end;
@@ -96,7 +100,10 @@ begin
     qry.SQL.Add('and c.rdb$relation_name='+ QuotedStr(ATabela));
     qry.Open;
 
-    result := qry.Fields[0].AsString;
+    if qry.IsEmpty then
+      result := 'Id'+ATabela
+    else
+      result := qry.Fields[0].AsString;
 
   finally
     qry.Close;
@@ -104,7 +111,7 @@ begin
   end;
 end;
 
-procedure TControllerTabela.PreencheCabecalho(Var AMemo: TMemo; ATabela: String);
+procedure TControllerTabela.PreencheCabecalhoClasse(Var AMemo: TMemo; ATabela: String);
 var
   ATabelaCamelCase: string;
 begin
@@ -125,7 +132,7 @@ begin
 end;
 
 
-procedure TControllerTabela.PreencheRodape(Var AMemo: TMemo);
+procedure TControllerTabela.PreencheRodapeClasse(Var AMemo: TMemo);
 begin
   AMemo.Lines.Add('end;');
   AddLinha(AMemo);
@@ -133,6 +140,8 @@ begin
   AddLinha(AMemo);
   AMemo.Lines.Add('end.');
 end;
+
+
 
 
 procedure TControllerTabela.AddLinha(var AMemo: TMemo);
@@ -185,5 +194,108 @@ begin
     end;
   end;
 end;
+
+procedure TControllerTabela.PreencheCabecalhoController(Var AMemo: TMemo; ATabela: String);
+var
+  Chave: string;
+begin
+  Chave := PegaCampoChave(ATabela);
+
+  AMemo.Lines.Add(Format('unit %s;', ['Controller.'+ ATabela]));
+  AddLinha(AMemo);
+  AMemo.Lines.Add('interface');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('uses');
+  AMemo.Lines.Add('System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,');
+  AMemo.Lines.Add('FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,');
+  AMemo.Lines.Add('FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,           ');
+  AMemo.Lines.Add('FireDAC.Comp.DataSet, FireDAC.Comp.Client, '+ 'Model.'+ ATabela +';');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('type TController'+ATabela + ' = class(TDataModule)');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('private');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('public');
+  AMemo.Lines.Add(Format('  function Get%s(var A'+ATabela+': T%s; Id: String): Boolean;',[ATabela, ATabela]));
+  AMemo.Lines.Add('end;');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('Var');
+  AMemo.Lines.Add('  Controller'+ATabela+':' + 'TController'+ATabela+';');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('implementation');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('{%CLASSGROUP ''Vcl.Controls.TControl''}');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('{$R *.dfm}');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('uses');
+  AMemo.Lines.Add(' Controller.Base;');
+  AddLinha(AMemo);
+  AMemo.Lines.Add(Format('function TController'+ATabela+'.Get%s(var A'+ ATabela +': T%s; Id: String): Boolean;',[ATabela, ATabela]));
+  AMemo.Lines.Add('var');
+  AMemo.Lines.Add('qry: TFDQuery;');
+  AMemo.Lines.Add('begin');
+  AMemo.Lines.Add('  qry := TFDQuery.Create(nil);');
+  AMemo.Lines.Add('  try');
+  AMemo.Lines.Add('    qry.Connection := ControllerBase.con;');
+  AMemo.Lines.Add('    qry.SQL.Add(''select * from '+ATabela +''');');
+  AMemo.Lines.Add('    qry.SQL.Add(''where '+ATabela +'.'+ Chave +' =:'+ Chave+''');');
+  AMemo.Lines.Add('    qry.ParamByName('''+ Chave +''').AsString := id;');
+  AMemo.Lines.Add('    qry.Open;');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('    if qry.IsEmpty then');
+  AMemo.Lines.Add('      Result := False');
+  AMemo.Lines.Add('    else');
+  AMemo.Lines.Add('    begin');
+end;
+
+procedure TControllerTabela.PreencheRodapeController(Var AMemo: TMemo);
+begin
+  AMemo.Lines.Add('      result := True;');
+  AMemo.Lines.Add('    end;');
+  AddLinha(AMemo);
+  AMemo.Lines.Add('  finally');
+  AMemo.Lines.Add('    FreeAndNil(qry);');
+  AMemo.Lines.Add('    qry.close;');
+  AMemo.Lines.Add('  end;');
+  AMemo.Lines.Add('end;');
+  AMemo.Lines.Add('end.');
+end;
+
+
+
+procedure TControllerTabela.GeraController(Var AMemo: TMemo; ATabela: string);
+var
+  qry: TFDQuery;
+  FieldName: string;
+  Field: TField;
+  Tipo: string;
+  ATabelaCamelCase: string;
+begin
+  AMemo.Lines.Clear;
+  ATabelaCamelCase := FormatCamelCase(ATabela);
+  PreencheCabecalhoController(AMemo, ATabelaCamelCase);
+  qry := TFDQuery.Create(nil);
+
+  try
+    qry.Connection := ControllerBase.conBase;
+    qry.SQL.Add('SELECT FIRST 1 * FROM '+ ATabela);
+    qry.Open;
+
+    for Field in qry.Fields do
+    begin
+      FieldName := Field.FieldName;
+      Tipo := GetTipo(Field.DataType);
+
+      AMemo.Lines.Add(Format('      A%s.%s := Qry.FieldByName(''%s'').Value;',[ATabelaCamelCase, FieldName, FieldName]));
+    end;
+
+  finally
+    PreencheRodapeController(AMemo);
+    qry.Close;
+    FreeAndNil(qry);
+  end;
+end;
+
 
 end.
