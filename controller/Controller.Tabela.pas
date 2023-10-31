@@ -23,6 +23,7 @@ type
 
     procedure PreencheCabecalhoController(var AMemo: TMemo; ATabela: String);
     procedure PreencheRodapeController(var AMemo: TMemo);
+    function GetTipoBd(AType: TFieldType): string;
     { Private declarations }
   public
     { Public declarations }
@@ -170,6 +171,27 @@ begin
   end;
 end;
 
+function TControllerTabela.GetTipoBd(AType: TFieldType): string;
+begin
+  case AType of
+    ftSmallint,
+    ftInteger,
+    ftWord: Result := 'AsInteger';
+
+    ftBoolean: Result := 'AsBoolean';
+
+    ftFloat, ftCurrency, ftBCD: Result := 'AsFloat';
+
+    ftDate: Result := 'AsDate';
+
+    ftDateTime, ftTimeStamp: Result := 'AsDateTime';
+
+    else
+      Result := 'AsString';
+  end;
+end;
+
+
 
 function TControllerTabela.FormatCamelCase(input: string): string;
 var
@@ -255,8 +277,8 @@ begin
   AMemo.Lines.Add('    end;');
   AddLinha(AMemo);
   AMemo.Lines.Add('  finally');
-  AMemo.Lines.Add('    FreeAndNil(qry);');
   AMemo.Lines.Add('    qry.close;');
+  AMemo.Lines.Add('    FreeAndNil(qry);');
   AMemo.Lines.Add('  end;');
   AMemo.Lines.Add('end;');
   AMemo.Lines.Add('end.');
@@ -285,9 +307,9 @@ begin
     for Field in qry.Fields do
     begin
       FieldName := Field.FieldName;
-      Tipo := GetTipo(Field.DataType);
+      Tipo := GetTipoBd(Field.DataType);
 
-      AMemo.Lines.Add(Format('      A%s.%s := Qry.FieldByName(''%s'').Value;',[ATabelaCamelCase, FieldName, FieldName]));
+      AMemo.Lines.Add(Format('      A%s.%s := Qry.FieldByName(''%s'').%s;',[ATabelaCamelCase, FieldName, FieldName, Tipo]));
     end;
 
   finally

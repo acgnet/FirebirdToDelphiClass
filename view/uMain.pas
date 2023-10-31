@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Data.DB,
-  Vcl.Grids, Vcl.DBGrids, vcl.Clipbrd;
+  Vcl.Grids, Vcl.DBGrids, vcl.Clipbrd, Vcl.Buttons, System.ImageList,
+  Vcl.ImgList;
 
 type
   TfrmMain = class(TForm)
@@ -14,25 +15,31 @@ type
     pnl3: TPanel;
     btnSair: TButton;
     btnGerarClasse: TButton;
-    btnConfigurar: TButton;
     dtsTabela: TDataSource;
-    dbgTabela: TDBGrid;
-    btnClipboard: TButton;
-    lblMensagem: TLabel;
     Panel1: TPanel;
     mmoClasse: TMemo;
     mmoController: TMemo;
     spl1: TSplitter;
+    dbgTabela: TDBGrid;
+    btnConfigurar: TButton;
+    imgSis: TImageList;
+    Panel3: TPanel;
+    SpeedButton1: TSpeedButton;
+    Panel2: TPanel;
+    btnCopyClass: TSpeedButton;
+    lblClass: TLabel;
+    lblController: TLabel;
     procedure btnConfigurarClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnGerarClasseClick(Sender: TObject);
-    procedure btnClipboardClick(Sender: TObject);
     procedure dbgTabelaKeyPress(Sender: TObject; var Key: Char);
     procedure dbgTabelaKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
     procedure dbgTabelaCellClick(Column: TColumn);
     procedure btnSairClick(Sender: TObject);
+    procedure btnCopyClassClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     { Private declarations }
     ABusca: string;
@@ -52,15 +59,18 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmMain.btnClipboardClick(Sender: TObject);
-begin
-  Clipboard.AsText := mmoClasse.Lines.Text;
-  lblMensagem.Caption := 'Copiado!';
-end;
-
 procedure TfrmMain.btnConfigurarClick(Sender: TObject);
 begin
   frmConfiguracao.ShowModal;
+end;
+
+procedure TfrmMain.btnCopyClassClick(Sender: TObject);
+begin
+  Clipboard.AsText := mmoClasse.Lines.Text;
+  lblClass.Visible := True;
+  lblController.Visible := False;
+  lblClass.Update;
+  lblController.Update;
 end;
 
 procedure TfrmMain.btnGerarClasseClick(Sender: TObject);
@@ -70,6 +80,9 @@ begin
     ControllerTabela.GeraClasse(mmoClasse, dtsTabela.DataSet.FieldByName('Tabela').AsString);
     ControllerTabela.GeraController(mmoController, dtsTabela.DataSet.FieldByName('Tabela').AsString);
    end;
+
+   lblClass.Visible := False;
+   lblController.Visible := False;
 end;
 
 procedure TfrmMain.btnSairClick(Sender: TObject);
@@ -127,7 +140,16 @@ end;
 
 procedure TfrmMain.LimpaMensagem;
 begin
-  lblMensagem.Caption := EmptyStr;
+
+end;
+
+procedure TfrmMain.SpeedButton1Click(Sender: TObject);
+begin
+  Clipboard.AsText := mmoController.Lines.Text;
+  lblController.Visible := True;
+  lblClass.Visible := False;
+  lblController.Update;
+  lblClass.Update;
 end;
 
 end.
