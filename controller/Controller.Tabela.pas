@@ -283,10 +283,10 @@ begin
   AMemo.Lines.Add('private');
   AddLinha(AMemo);
   AMemo.Lines.Add('public');
-  AMemo.Lines.Add(Format('  function Create%s(var A%s: T%s): Boolean;',[ATabelaCamelCase, ATabelaCamelCase, ATabelaCamelCase]));
-  AMemo.Lines.Add(Format('  function Read%s(var A%s: T%s; %s): Boolean;',[ATabela, ATabela, ATabela, AChaveString]));
-  AMemo.Lines.Add(Format('  function Update%s(var A%s: T%s): Boolean;',[ATabelaCamelCase, ATabelaCamelCase, ATabelaCamelCase]));
-  AMemo.Lines.Add(Format('  function Delete%s(%s):Boolean;',[ATabelaCamelCase, AChaveString]));
+  AMemo.Lines.Add(Format('  class function Create%s(var A%s: T%s): Boolean;',[ATabelaCamelCase, ATabelaCamelCase, ATabelaCamelCase]));
+  AMemo.Lines.Add(Format('  class function Read%s(var A%s: T%s; %s): Boolean;',[ATabela, ATabela, ATabela, AChaveString]));
+  AMemo.Lines.Add(Format('  class function Update%s(var A%s: T%s): Boolean;',[ATabelaCamelCase, ATabelaCamelCase, ATabelaCamelCase]));
+  AMemo.Lines.Add(Format('  class function Delete%s(%s):Boolean;',[ATabelaCamelCase, AChaveString]));
 
   AMemo.Lines.Add('end;');
   AddLinha(AMemo);
@@ -502,7 +502,7 @@ end;
 
 procedure TControllerTabela.GeraInsertCrud(var AMemo: TMemo; ATabela: string);
 begin
-  AMemo.Lines.Add(Format('function TController%s.Create%s(var A%s: T%s): Boolean;',[ATabela, ATabela, ATabela, ATabela]));
+  AMemo.Lines.Add(Format('class function TController%s.Create%s(var A%s: T%s): Boolean;',[ATabela, ATabela, ATabela, ATabela]));
   AMemo.Lines.Add('var');
   AMemo.Lines.Add('  qry: TFDQuery;');
   AMemo.Lines.Add('begin');
@@ -547,7 +547,7 @@ var
 begin
   ChaveString := ChavesParaString(Chaves);
 
-  AMemo.Lines.Add(Format('function TController'+ATabela+'.Read%s(var A'+ ATabela +': T%s; %s): Boolean;',[ATabela, ATabela, ChaveString]));
+  AMemo.Lines.Add(Format('class function TController'+ATabela+'.Read%s(var A'+ ATabela +': T%s; %s): Boolean;',[ATabela, ATabela, ChaveString]));
   AMemo.Lines.Add('var');
   AMemo.Lines.Add('  qry: TFDQuery;');
   AMemo.Lines.Add('begin');
@@ -591,13 +591,13 @@ end;
 
 procedure TControllerTabela.GeraUpdateCrud(var AMemo: TMemo; ATabela: string);
 begin
-  AMemo.Lines.Add(Format('function TController%s.Update%s(var A%s: T%s): Boolean;',[ATabela, ATabela, ATabela, ATabela]));
+  AMemo.Lines.Add(Format('class function TController%s.Update%s(var A%s: T%s): Boolean;',[ATabela, ATabela, ATabela, ATabela]));
   AMemo.Lines.Add('var');
   AMemo.Lines.Add('  qry: TFDQuery;');
   AMemo.Lines.Add('begin');
   AMemo.Lines.Add('  qry := TFDQuery.Create(nil);');
   AMemo.Lines.Add('  try');
-  AMemo.Lines.Add('    qry.Connection := Controller.con;');
+  AMemo.Lines.Add('    qry.Connection := ControllerBase.con;');
   AMemo.Lines.Add('    Result := False;');
   AMemo.Lines.Add('');
   AMemo.Lines.Add('    qry.SQL.Add('+Format('''UPDATE %s SET'');',[ATabela,GetFieldsFromTable(ATabela)]));
@@ -636,13 +636,13 @@ begin
   ChaveString := ChavesParaString(Chaves);
 
   // Implementação do método para deletar um registro do banco
-  AMemo.Lines.Add(Format('function TController%s.Delete%s(%s): Boolean;',[ATabela, ATabela, ChaveString]));
+  AMemo.Lines.Add(Format('class function TController%s.Delete%s(%s): Boolean;',[ATabela, ATabela, ChaveString]));
   AMemo.Lines.Add('var');
   AMemo.Lines.Add('  qry: TFDQuery;');
   AMemo.Lines.Add('begin');
   AMemo.Lines.Add('  qry := TFDQuery.Create(nil);');
   AMemo.Lines.Add('  try');
-  AMemo.Lines.Add('    qry.Connection := Controller.con;');
+  AMemo.Lines.Add('    qry.Connection := ControllerBase.con;');
   AMemo.Lines.Add('    Result := False;');
 
   AMemo.Lines.Add(Format('    qry.SQL.Add(''DELETE FROM %s WHERE 1=1'');',[ATabela]));
